@@ -402,6 +402,7 @@ def check_joints_velocity(q_dot):
 
 
 i=0  # Indice temporale
+x= 0.0  # Tempo di campionamento
 
 # Vettori per i grafici
 q_plot = np.zeros((1000, 7))
@@ -485,7 +486,8 @@ if __name__ == '__main__':
         point=JointTrajectoryPoint()
         point.positions = q_tolist
         point.velocities = dq_tolist
-        point.time_from_start = rospy.Duration(1/f)
+        x = x + 1/f
+        point.time_from_start = rospy.Duration(x)
         joints_str.points.append(point)
         
         pub_tf.publish(joints_str)      # Comando al controllore del robot
