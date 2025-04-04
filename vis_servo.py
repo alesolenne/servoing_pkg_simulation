@@ -287,8 +287,8 @@ def feedback(trans_0B, rot_0B, trans_EV, rot_EV, q):
     J_pinv = np.matmul(J_trans, np.linalg.inv(J_1))
     
     # Calcolo legge di controllo
-    K_p = 0.5*np.identity(3)
-    K_o = 0.5*np.identity(3)
+    K_p = 10*np.identity(3)
+    K_o = 10*np.identity(3)
     K = np.block([[K_p, Z], [Z, K_o]])
     q_dot = np.linalg.multi_dot([J_pinv, L, K, e])
 
@@ -408,12 +408,11 @@ x= 0.0  # Tempo di campionamento
 q_plot = np.zeros((1000, 7))
 dq_plot = np.zeros((1000, 7))
 e_plot = np.zeros((1000, 6))
-
 if __name__ == '__main__':
     rospy.init_node('controller')
     listener = tf.TransformListener()
     pub_tf = rospy.Publisher("/position_joint_trajectory_controller/command", JointTrajectory, queue_size=10)
-    f = 10.0      # Frequenza di spin del nodo
+    f = 1000.0      # Frequenza di spin del nodo
     rate = rospy.Rate(f)
     initialized = False
     pick = False
@@ -435,7 +434,8 @@ if __name__ == '__main__':
 
     # rospy.sleep(2)
     rospy.loginfo("Inizio della fase di visual sevoing")
-
+    
+    t1 = rospy.Time.now()
     # Inizio della fase di visual servoing
     while not rospy.is_shutdown():
 
@@ -468,6 +468,13 @@ if __name__ == '__main__':
          
         # Calcolo del nuovo stato con integrazione discreta e legge di controllo PBVS
         (q_dot, e) = feedback(t_0B, q_0B, t_EV, q_EV, q)             # Legge di Controllo PBVS, errore traslazione e orientamento
+        t2 = rospy.Time.now()
+        dt = (t2-t1).to_sec()  # Calcolo del tempo di campionamento
+        t1 = t2
+        print("Tempo di campionamento: %s" %dt)
+        if dt != 0:
+            print("Frequenza di campionamento: %s" %(1/dt))
+
         q = q + q_dot*1/f                                            # Calcolo lo stato successivo
 
         # Check se limiti fisici del robot rispettati
