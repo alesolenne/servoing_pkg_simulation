@@ -1,0 +1,6 @@
+<launch>
+
+ <!-- Pubblica la trasformazione relativa fra il frame della base del robot e la camera (calibrazione esterna) -->
+     <node pkg = "fake_servo" name = "servoing" type = "servo.py" output='screen'/> 
+
+</launch>
